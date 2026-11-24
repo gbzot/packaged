@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
+	"errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -22,7 +22,7 @@ Like etcd, this is achieved by an implementation of the RCA (Raft Consensus Algo
 Everything is controlled by a singular configuration file located in $HOME/.packaged/config.json`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	//Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -61,6 +61,19 @@ func initConfig() {
 		}
 		packaged_dir := filepath.Join(home, ".packaged")
 
+		exists, err := dirExists(packaged_dir)
+		if err != nil {
+		fmt.Println("Error checking path:", err)
+		return
+		}
+
+		if exists {
+		fmt.Println("Directory exists")
+		} else {
+		fmt.Println("Directory does not exist (or is a file)")
+		}
+
+
 		cobra.CheckErr(err)
 
 		viper.AddConfigPath(packaged_dir)
@@ -74,4 +87,18 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
+
+}
+
+// Utilities
+
+func dirExists(path string) (bool, error) {
+	info, err := os.Stat(path)
+	if err == nil {
+		return info.IsDir(), nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	return false, err
 }

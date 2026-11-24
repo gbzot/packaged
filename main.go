@@ -1,6 +1,5 @@
 /*
 Copyright © 2026 Gabriel Bazzotti <gabriel.bazzotti@suse.com>
-
 */
 package main
 
